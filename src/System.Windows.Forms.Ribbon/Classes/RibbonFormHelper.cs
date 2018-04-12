@@ -261,7 +261,20 @@ namespace System.Windows.Forms
                 Margins.Bottom + ((Ribbon.OrbStyle == RibbonOrbStyle.Office_2007) ? Ribbon.CaptionBarHeight : Ribbon.CaptionBarHeight + Ribbon.TabsMargin.Top),
                 Margins.Bottom);
 
-            if (WinApi.IsVista && !_frameExtended)
+            if (WinApi.IsTen && !_frameExtended)
+            {
+                dwmMargins.cxLeftWidth -= 6;
+                dwmMargins.cxRightWidth -= 7;
+                dwmMargins.cyTopHeight -= 2;
+                dwmMargins.cyBottomHeight -= 8;
+                WinApi.DwmExtendFrameIntoClientArea(Form.Handle, ref dwmMargins);
+                _frameExtended = true;
+                //dwmMargins.cxRightWidth += 7;
+
+                //// https://msdn.microsoft.com/en-us/library/windows/desktop/aa969512(v=vs.85).aspx
+
+            }
+            else if (WinApi.IsVista && !_frameExtended)
             {
                 WinApi.DwmExtendFrameIntoClientArea(Form.Handle, ref dwmMargins);
                 _frameExtended = true;
@@ -442,13 +455,23 @@ namespace System.Windows.Forms
         /// <param name="p"></param>
         private void SetMargins(Padding p)
         {
+            
             _margins = p;
 
             Padding formPadding = p;
             formPadding.Top = p.Bottom - 1;
 
             if (!DesignMode)
+            {
+               if(WinApi.IsTen)
+                {
+                    formPadding.Left = 1;
+                    formPadding.Right = 1;
+                    formPadding.Bottom = 1;
+                }
                 Form.Padding = formPadding;
+            }
+                
         }
 
         #endregion
